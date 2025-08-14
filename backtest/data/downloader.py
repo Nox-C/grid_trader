@@ -13,9 +13,30 @@ CACHE_DIR = Path(__file__).resolve().parent / "cache"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _normalize_swap_symbol(ex: ccxt.Exchange, symbol: str) -> str:
+    """Ensure symbol targets swap market (e.g., PI/USDT:USDT)."""
+    # Many ccxt implementations expect ":USDT" for linear swaps
+    if symbol.endswith(":USDT"):
+        return symbol
+    if "/USDT" in symbol:
+        return symbol + ":USDT"
+    return symbol
+
+
 def fetch_klines_ccxt(symbol: str, timeframe: str, since_ms: Optional[int] = None, limit: int = 1000) -> pd.DataFrame:
     ex = ccxt.mexc()
-    ex.options = {"defaultType": "swap"}
+    # Ensure options has required keys to avoid KeyError
+    ex.options = {
+        **getattr(ex, "options", {}),
+        "defaultType": "swap",
+        "adjustForTimeDifference": False,
+    }
+    try:
+        ex.load_markets()
+    except Exception:
+        # proceed; some versions lazy-load on first fetch
+        pass
+    symbol = _normalize_swap_symbol(ex, symbol)
     all_rows = []
     fetch_since = since_ms
     while True:
