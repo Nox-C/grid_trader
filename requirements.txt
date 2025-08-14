@@ -1,0 +1,7 @@
+python-dotenv>=1.0.0
+requests>=2.31.0
+ccxt>=4.1.13
+pandas>=2.1.0
+numpy>=1.24.3
+python-dateutil>=2.8.2
+pydantic>=2.7.0
