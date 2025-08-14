@@ -11,9 +11,10 @@ def main():
     ap.add_argument("--timeframe", default=SETTINGS.default_timeframes[0])
     ap.add_argument("--start", default=SETTINGS.default_start)
     ap.add_argument("--end", default=SETTINGS.default_end)
+    ap.add_argument("--force", action="store_true", help="Bypass cache and re-download")
     args = ap.parse_args()
 
-    df = get_or_download_klines(args.symbol, args.timeframe, args.start, args.end)
+    df = get_or_download_klines(args.symbol, args.timeframe, args.start, args.end, force=args.force)
     print(f"Downloaded rows: {len(df)} for {args.symbol} {args.timeframe}")
 
 if __name__ == "__main__":
